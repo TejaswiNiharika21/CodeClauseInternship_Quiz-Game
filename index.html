@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Programming Quiz</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f4f4f4;
+            margin: 0;
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            width: 100%;
+            background: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            margin: 5px 0;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        #score {
+            margin-top: 20px;
+        }
+
+        .correct {
+            background-color: lightgreen !important;
+        }
+
+        .wrong {
+            background-color: lightcoral !important;
+        }
+
+        #end-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1 class="text-center">Java Programming Quiz</h1>
+        <div id="question-container" class="hide">
+            <div id="question" class="h5 mb-4">Question Text</div>
+            <div id="answer-buttons" class="btn-container d-flex flex-column"></div>
+        </div>
+        <div class="controls d-flex justify-content-between mt-4">
+            <button id="start-btn" class="btn btn-primary">Start</button>
+            <button id="next-btn" class="btn btn-secondary hide">Next</button>
+        </div>
+        <div id="score" class="hide mt-4">Score: <span id="score-value">0</span></div>
+        <div id="end-container" class="hide mt-4">
+            <h2>Quiz Completed!</h2>
+            <p>Your final score is: <span id="final-score">0</span></p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const startButton = document.getElementById('start-btn');
+        const nextButton = document.getElementById('next-btn');
+        const questionContainer = document.getElementById('question-container');
+        const questionElement = document.getElementById('question');
+        const answerButtonsElement = document.getElementById('answer-buttons');
+        const scoreElement = document.getElementById('score');
+        const scoreValue = document.getElementById('score-value');
+        const endContainer = document.getElementById('end-container');
+        const finalScoreElement = document.getElementById('final-score');
+
+        let shuffledQuestions, currentQuestionIndex;
+        let score = 0;
+
+        const questions = [
+            {
+                question: 'Which of the following is not a Java feature?',
+                answers: [
+                    { text: 'Object-oriented', correct: false },
+                    { text: 'Use of pointers', correct: true },
+                    { text: 'Portable', correct: false },
+                    { text: 'Dynamic', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these cannot be used for a variable name in Java?',
+                answers: [
+                    { text: 'identifier', correct: false },
+                    { text: 'keyword', correct: true },
+                    { text: 'Literal', correct: false },
+                    { text: 'Method name', correct: false }
+                ]
+            },
+            {
+                question: 'Which of the following is a valid declaration of a char?',
+                answers: [
+                    { text: 'char ch = "A";', correct: false },
+                    { text: 'char ch = A;', correct: false },
+                    { text: 'char ch = \'A\';', correct: true },
+                    { text: 'char ch = A\'', correct: false }
+                ]
+            },
+            {
+                question: 'Which of the following is used to find and fix bugs in the Java programs?',
+                answers: [
+                    { text: 'JVM', correct: false },
+                    { text: 'JRE', correct: false },
+                    { text: 'JDK', correct: false },
+                    { text: 'JDB', correct: true }
+                ]
+            },
+            {
+                question: 'What is the return type of the hashCode() method in the Object class?',
+                answers: [
+                    { text: 'int', correct: true },
+                    { text: 'Object', correct: false },
+                    { text: 'void', correct: false },
+                    { text: 'long', correct: false }
+                ]
+            },
+            {
+                question: 'Which package contains the Random class?',
+                answers: [
+                    { text: 'java.util', correct: true },
+                    { text: 'java.lang', correct: false },
+                    { text: 'java.io', correct: false },
+                    { text: 'java.math', correct: false }
+                ]
+            },
+            {
+                question: 'An interface with no fields or methods is known as a ______.',
+                answers: [
+                    { text: 'Runnable Interface', correct: false },
+                    { text: 'Marker Interface', correct: true },
+                    { text: 'Abstract Interface', correct: false },
+                    { text: 'CharSequence Interface', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these keywords is used to define interfaces in Java?',
+                answers: [
+                    { text: 'interface', correct: true },
+                    { text: 'Interface', correct: false },
+                    { text: 'intf', correct: false },
+                    { text: 'Intf', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these classes are the direct subclasses of the Throwable class?',
+                answers: [
+                    { text: 'RuntimeException and Error class', correct: true },
+                    { text: 'Exception and Error class', correct: false },
+                    { text: 'IOException and RuntimeException class', correct: false },
+                    { text: 'RuntimeException and Exception class', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these methods is used to allocate memory for an array in Java?',
+                answers: [
+                    { text: 'malloc', correct: false },
+                    { text: 'alloc', correct: false },
+                    { text: 'new', correct: true },
+                    { text: 'new malloc', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these packages contains the exception Stack Overflow in Java?',
+                answers: [
+                    { text: 'java.io', correct: false },
+                    { text: 'java.lang', correct: true },
+                    { text: 'java.util', correct: false },
+                    { text: 'java.system', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these methods is a part of the Runnable interface in Java?',
+                answers: [
+                    { text: 'run()', correct: true },
+                    { text: 'start()', correct: false },
+                    { text: 'stop()', correct: false },
+                    { text: 'exit()', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these methods is used to implement threading in Java?',
+                answers: [
+                    { text: 'run()', correct: true },
+                    { text: 'start()', correct: false },
+                    { text: 'execute()', correct: false },
+                    { text: 'begin()', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these classes is not included in the java.util package?',
+                answers: [
+                    { text: 'ArrayList', correct: false },
+                    { text: 'HashMap', correct: false },
+                    { text: 'Dictionary', correct: true },
+                    { text: 'LinkedList', correct: false }
+                ]
+            },
+            {
+                question: 'Which of these data types is used to create a variable that should store text?',
+                answers: [
+                    { text: 'String', correct: true },
+                    { text: 'char', correct: false },
+                    { text: 'myString', correct: false },
+                    { text: 'StringBuilder', correct: false }
+                ]
+            }
+        ];
+
+        startButton.addEventListener('click', startGame);
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            setNextQuestion();
+        });
+
+        function startGame() {
+            startButton.classList.add('hide');
+            endContainer.classList.add('hide');
+            shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            questionContainer.classList.remove('hide');
+            scoreElement.classList.remove('hide');
+            score = 0;
+            scoreValue.innerText = score;
+            setNextQuestion();
+        }
+
+        function setNextQuestion() {
+            resetState();
+            showQuestion(shuffledQuestions[currentQuestionIndex]);
+        }
+
+        function showQuestion(question) {
+            questionElement.innerText = question.question;
+            question.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('btn', 'btn-outline-primary');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                answerButtonsElement.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            clearStatusClass(document.body);
+            nextButton.classList.add('hide');
+            while (answerButtonsElement.firstChild) {
+                answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedButton = e.target;
+            const correct = selectedButton.dataset.correct;
+            setStatusClass(document.body, correct);
+            Array.from(answerButtonsElement.children).forEach(button => {
+                setStatusClass(button, button.dataset.correct);
+            });
+            if (correct) {
+                score++;
+                scoreValue.innerText = score;
+            }
+            if (shuffledQuestions.length > currentQuestionIndex + 1) {
+                nextButton.classList.remove('hide');
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function showEndScreen() {
+            questionContainer.classList.add('hide');
+            scoreElement.classList.add('hide');
+            endContainer.classList.remove('hide');
+            finalScoreElement.innerText = score;
+            startButton.innerText = 'Restart';
+            startButton.classList.remove('hide');
+        }
+
+        function setStatusClass(element, correct) {
+            clearStatusClass(element);
+            if (correct) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('wrong');
+            }
+        }
+
+        function clearStatusClass(element) {
+            element.classList.remove('correct');
+            element.classList.remove('wrong');
+        }
+    </script>
+</body>
+</html>
